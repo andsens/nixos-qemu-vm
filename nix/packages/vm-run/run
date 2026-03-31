@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eo pipefail; shopt -s inherit_errexit
+
+main() {
+  local vmname=$1 runner=$2
+  flake_root="$PWD"
+  while [ ! -f "$flake_root/flake.nix" ]; do
+    flake_root="$(dirname "$flake_root")"
+    if [ "$flake_root" = "/" ]; then
+      echo "Could not find flake root to mount into VM, exiting" >&2
+      exit 1
+    fi
+  done
+  export FLAKE_SRC="$flake_root"
+  local vmdir="$flake_root/vms/$vmname"
+  mkdir -p "$vmdir"
+  cd "$vmdir"
+
+  export TMPDIR \
+    NIX_DISK_IMAGE=$vmdir/disk.qcow2 \
+    NIX_SWTPM_DIR=$vmdir/swtpm \
+    NIX_EFI_VARS=$vmdir/efi-vars.fd
+
+  TMPDIR=$(mktemp -d "nix-$vmname.XXXXXXXXXX" --tmpdir)
+  cleanup() {
+    [[ -z $QEMU_PID ]] || kill $QEMU_PID 2>/dev/null || true
+    rm -rf "$TMPDIR"
+    local swtpm_pid timeout=1000
+    while swtpm_pid=$(pgrep -f -- "--tpmstate dir=$NIX_SWTPM_DIR"); do
+      sleep .01
+      if (( (timeout=timeout-10) <= 0)); then
+        kill "$swtpm_pid" 2>/dev/null
+        break
+      fi
+    done
+  }
+
+  # shellcheck disable=SC1090
+  "$runner" & QEMU_PID="$!"
+  trap cleanup EXIT
+  sleep 1
+  remote-viewer spice://127.0.0.1:5930
+}
+
+main "$@"
