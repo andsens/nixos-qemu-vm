@@ -14,5 +14,5 @@ writeShellScriptBin "vm-run" ''
       procps
     ]
   }:$PATH"
-  exec ${./run} "$@"
+  exec "${./run}" "$@"
 ''
