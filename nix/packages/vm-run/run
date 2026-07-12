@@ -16,15 +16,16 @@ main() {
   mkdir -p "$vmdir"
   cd "$vmdir"
 
-  export TMPDIR \
+  export \
+    TMPDIR=$vmdir/tmp \
+    USE_TMPDIR=true \
     NIX_DISK_IMAGE=$vmdir/disk.qcow2 \
     NIX_SWTPM_DIR=$vmdir/swtpm \
     NIX_EFI_VARS=$vmdir/efi-vars.fd
 
-  TMPDIR=$(mktemp -d "nix-$vmname.XXXXXXXXXX" --tmpdir)
+  mkdir -p "$TMPDIR"
   cleanup() {
     [[ -z $QEMU_PID ]] || kill $QEMU_PID 2>/dev/null || true
-    rm -rf "$TMPDIR"
     local swtpm_pid timeout=1000
     while swtpm_pid=$(pgrep -f -- "--tpmstate dir=$NIX_SWTPM_DIR"); do
       sleep .01
