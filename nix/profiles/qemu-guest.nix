@@ -1,6 +1,7 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 {
   config = {
+    environment.systemPackages = [ pkgs.spice-vdagent ];
     boot.initrd.availableKernelModules = [
       "virtio_pci"
       "uhci_hcd"

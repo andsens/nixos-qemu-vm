@@ -22,7 +22,7 @@ Begin by adding `nixos-qemu-vm` to your flake inputs:
 ```
 
 To run your normal host configuration in a VM, create a new NixOS configuration
-and include both the setup and hardware profiles:
+and include both the setup and guest profiles:
 
 ```nix
 # configurations/vm-prebuilt.nix
@@ -30,7 +30,7 @@ and include both the setup and hardware profiles:
 {
   imports = [
     inputs.qemu-vm.nixosModules.qemuSetup
-    inputs.qemu-vm.nixosModules.qemuHardware
+    inputs.qemu-vm.nixosModules.qemuGuest
   ];
   config = {
     system.stateVersion = "25.11";

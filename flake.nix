@@ -36,7 +36,7 @@
               '';
           };
           nixosModules = {
-            qemuHardware = ./nix/profiles/qemu-hardware.nix;
+            qemuGuest = ./nix/profiles/qemu-guest.nix;
             qemuSetup = ./nix/profiles/qemu-setup.nix;
           };
         };
