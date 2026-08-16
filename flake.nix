@@ -19,6 +19,9 @@
         lib,
         ...
       }:
+      let
+        inherit (flake-parts-lib) importApply;
+      in
       {
         systems = import systems;
         flake = {
@@ -36,8 +39,8 @@
               '';
           };
           nixosModules = {
-            qemuGuest = ./nix/profiles/qemu-guest.nix;
-            qemuSetup = ./nix/profiles/qemu-setup.nix;
+            qemuGuest = importApply ./nix/profiles/qemu-guest.nix { inherit self inputs; };
+            qemuSetup = importApply ./nix/profiles/qemu-setup.nix { inherit self inputs; };
           };
         };
         perSystem =
