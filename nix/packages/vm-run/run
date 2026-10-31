@@ -36,6 +36,14 @@ main() {
     done
   }
 
+  export QEMU_OPTS="-display none -spice disable-ticketing=on,port=5930,addr=127.0.0.1 \
+    -device virtio-serial-pci \
+    -chardev spicevmc,id=vdagent0,name=vdagent \
+    -device virtserialport,chardev=vdagent0,name=com.redhat.spice.0 \
+    -chardev spiceport,id=webdav0,name=org.spice-space.webdav.0 \
+    -device virtserialport,chardev=webdav0,name=org.spice-space.webdav.0 \
+    ${QEMU_OPTS:-}"
+
   # shellcheck disable=SC1090
   "$runner" & QEMU_PID="$!"
   trap cleanup EXIT
